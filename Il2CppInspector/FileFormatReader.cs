@@ -19,11 +19,11 @@ namespace Il2CppInspector
         IFileFormatReader this[uint index] { get; }
         long Position { get; set; }
         string Arch { get; }
-        uint GlobalOffset { get; }
-        uint[] GetFunctionTable();
-        U ReadMappedObject<U>(uint uiAddr) where U : new();
-        U[] ReadMappedArray<U>(uint uiAddr, int count) where U : new();
-        uint MapVATR(uint uiAddr);
+        ulong GlobalOffset { get; }
+        ulong[] GetFunctionTable();
+        U ReadMappedObject<U>(ulong uiAddr) where U : new();
+        U[] ReadMappedArray<U>(ulong uiAddr, int count) where U : new();
+        ulong MapVATR(ulong uiAddr);
         void FinalizeInit(Il2CppBinary il2cpp);
 
         byte[] ReadBytes(int count);
@@ -41,7 +41,7 @@ namespace Il2CppInspector
 
         public uint NumImages { get; protected set; } = 1;
 
-        public uint GlobalOffset { get; protected set; }
+        public ulong GlobalOffset { get; protected set; }
 
         public virtual string Arch => throw new NotImplementedException();
 
@@ -76,19 +76,19 @@ namespace Il2CppInspector
         }
 
         // Find search locations in the machine code for Il2Cpp data
-        public virtual uint[] GetFunctionTable() => throw new NotImplementedException();
+        public virtual ulong[] GetFunctionTable() => throw new NotImplementedException();
 
         // Map an RVA to an offset into the file image
         // No mapping by default
-        public virtual uint MapVATR(uint uiAddr) => uiAddr;
+        public virtual ulong MapVATR(ulong uiAddr) => uiAddr;
 
         // Retrieve object(s) from specified RVA(s)
-        public U ReadMappedObject<U>(uint uiAddr) where U : new() {
-            return ReadObject<U>(MapVATR(uiAddr));
+        public U ReadMappedObject<U>(ulong uiAddr) where U : new() {
+            return ReadObject<U>((long)MapVATR(uiAddr));
         }
 
-        public U[] ReadMappedArray<U>(uint uiAddr, int count) where U : new() {
-            return ReadArray<U>(MapVATR(uiAddr), count);
+        public U[] ReadMappedArray<U>(ulong uiAddr, int count) where U : new() {
+            return ReadArray<U>((long)MapVATR(uiAddr), count);
         }
 
         // Perform file format-based post-load manipulations to the IL2Cpp data

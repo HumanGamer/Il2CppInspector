@@ -117,7 +117,7 @@ namespace Il2CppInspector
                     var def = TypeDefinitions[i];
                     var pFieldOffsets = Binary.FieldOffsetData[i];
                     if (pFieldOffsets != 0) {
-                        Binary.Image.Stream.Position = Binary.Image.MapVATR((uint) pFieldOffsets);
+                        Binary.Image.Stream.Position = (long)Binary.Image.MapVATR((uint) pFieldOffsets);
 
                         for (var f = 0; f < def.field_count; f++)
                             offsets.Add(def.fieldStart + f, Binary.Image.Stream.ReadInt32());
@@ -164,6 +164,9 @@ namespace Il2CppInspector
                     case "ARM":
                         binary = new Il2CppBinaryARM(image);
                         break;
+					case "ARM64":
+						binary = new Il2CppBinaryARM64(image);
+						break;
                     default:
                         Console.Error.WriteLine("Unsupported architecture");
                         return null;

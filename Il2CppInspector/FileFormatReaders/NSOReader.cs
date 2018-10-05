@@ -16,33 +16,33 @@ namespace Il2CppInspector
 {
     internal class NSOReader : FileFormatReader<NSOReader>
     {
-	    private bool arm32;
-	    private uint nsoVersion;
-	    private uint reserved1;
-	    private byte[] reserved2;
-	    private uint flags;
-	    private NSOSegmentHeader textSegmentHeader;
-	    private NSOSegmentHeader roDataSegmentHeader;
-	    private NSOSegmentHeader dataSegmentHeader;
-	    private uint moduleOffset;
-	    private uint moduleFileSize;
-	    private uint bssSize;
-	    private byte[] buildId;
-	    private NSORoDataRelativeExtent roDataRelativeExtentsOfApiInfo;
-	    private NSORoDataRelativeExtent roDataRelativeExtentsOfDynstr;
-	    private NSORoDataRelativeExtent roDataRelativeExtentsOfDynsym;
-	    private NSOMod mod;
-	    private List<NSODynamic> dynamics;
-	    private byte[] textSection;
-	    private byte[] roDataSection;
-	    private byte[] dataSection;
-		private byte[] fullCode;
+	    private bool _arm32;
+	    private uint _nsoVersion;
+	    private uint _reserved1;
+	    private byte[] _reserved2;
+	    private uint _flags;
+	    private NSOSegmentHeader _textSegmentHeader;
+	    private NSOSegmentHeader _roDataSegmentHeader;
+	    private NSOSegmentHeader _dataSegmentHeader;
+	    private uint _moduleOffset;
+	    private uint _moduleFileSize;
+	    private uint _bssSize;
+	    private byte[] _buildId;
+	    private NSORoDataRelativeExtent _roDataRelativeExtentsOfApiInfo;
+	    private NSORoDataRelativeExtent _roDataRelativeExtentsOfDynstr;
+	    private NSORoDataRelativeExtent _roDataRelativeExtentsOfDynsym;
+	    private NSOMod _mod;
+	    private List<NSODynamic> _dynamics;
+	    private byte[] _textSection;
+	    private byte[] _roDataSection;
+	    private byte[] _dataSection;
+		private byte[] _fullCode;
 
 		public NSOReader(Stream stream) : base(stream) {}
 
         public override string Arch {
             get {
-	            return "ARM";
+	            return _arm32 ? "ARM" : "ARM64";
             }
         }
 
@@ -52,99 +52,99 @@ namespace Il2CppInspector
                 return false;
 
 			// NSO Version is always 0
-	        nsoVersion = ReadUInt32();
-			if (nsoVersion != 0x00)
+	        _nsoVersion = ReadUInt32();
+			if (_nsoVersion != 0x00)
 		        return false;
 
 			// Reserved (Unused)
-	        reserved1 = ReadUInt32();
+	        _reserved1 = ReadUInt32();
 
 			// Flags
-	        flags = ReadUInt32();
+	        _flags = ReadUInt32();
 
 			// .text SegmentHeader
-	        textSegmentHeader = new NSOSegmentHeader();
-	        textSegmentHeader.FileOffset = ReadUInt32();
-	        textSegmentHeader.MemoryOffset = ReadUInt32();
-	        textSegmentHeader.DecompressedSize = ReadUInt32();
+	        _textSegmentHeader = new NSOSegmentHeader();
+	        _textSegmentHeader.FileOffset = ReadUInt32();
+	        _textSegmentHeader.MemoryOffset = ReadUInt32();
+	        _textSegmentHeader.DecompressedSize = ReadUInt32();
 
 			// Module offset (calculated by sizeof(header))
-	        moduleOffset = ReadUInt32();
+	        _moduleOffset = ReadUInt32();
 
 			// .rodata SegmentHeader
-			roDataSegmentHeader = new NSOSegmentHeader();
-	        roDataSegmentHeader.FileOffset = ReadUInt32();
-	        roDataSegmentHeader.MemoryOffset = ReadUInt32();
-	        roDataSegmentHeader.DecompressedSize = ReadUInt32();
+			_roDataSegmentHeader = new NSOSegmentHeader();
+	        _roDataSegmentHeader.FileOffset = ReadUInt32();
+	        _roDataSegmentHeader.MemoryOffset = ReadUInt32();
+	        _roDataSegmentHeader.DecompressedSize = ReadUInt32();
 
 			// Module file size
-	        moduleFileSize = ReadUInt32();
+	        _moduleFileSize = ReadUInt32();
 
 			// .data SegmentHeader
-			dataSegmentHeader = new NSOSegmentHeader();
-	        dataSegmentHeader.FileOffset = ReadUInt32();
-	        dataSegmentHeader.MemoryOffset = ReadUInt32();
-	        dataSegmentHeader.DecompressedSize = ReadUInt32();
+			_dataSegmentHeader = new NSOSegmentHeader();
+	        _dataSegmentHeader.FileOffset = ReadUInt32();
+	        _dataSegmentHeader.MemoryOffset = ReadUInt32();
+	        _dataSegmentHeader.DecompressedSize = ReadUInt32();
 
 			// bssSize
-	        bssSize = ReadUInt32();
+	        _bssSize = ReadUInt32();
 
 			// Value of "build id" from ELF's GNU .note section. Contains variable sized digest, up to 32bytes.
-	        buildId = ReadBytes(32);
+	        _buildId = ReadBytes(32);
 
 			// Compressed Sizes
-	        textSegmentHeader.CompressedSize = ReadUInt32();
-	        roDataSegmentHeader.CompressedSize = ReadUInt32();
-	        dataSegmentHeader.CompressedSize = ReadUInt32();
+	        _textSegmentHeader.CompressedSize = ReadUInt32();
+	        _roDataSegmentHeader.CompressedSize = ReadUInt32();
+	        _dataSegmentHeader.CompressedSize = ReadUInt32();
 
 			// Reserved (Padding)
-	        reserved2 = ReadBytes(28);
+	        _reserved2 = ReadBytes(28);
 
 			// Relative Extents
-	        roDataRelativeExtentsOfApiInfo = new NSORoDataRelativeExtent();
-	        roDataRelativeExtentsOfApiInfo.RegionRoDataOffset = ReadUInt32();
-	        roDataRelativeExtentsOfApiInfo.RegionSize = ReadUInt32();
+	        _roDataRelativeExtentsOfApiInfo = new NSORoDataRelativeExtent();
+	        _roDataRelativeExtentsOfApiInfo.RegionRoDataOffset = ReadUInt32();
+	        _roDataRelativeExtentsOfApiInfo.RegionSize = ReadUInt32();
 
-	        roDataRelativeExtentsOfDynstr = new NSORoDataRelativeExtent();
-	        roDataRelativeExtentsOfDynstr.RegionRoDataOffset = ReadUInt32();
-	        roDataRelativeExtentsOfDynstr.RegionSize = ReadUInt32();
+	        _roDataRelativeExtentsOfDynstr = new NSORoDataRelativeExtent();
+	        _roDataRelativeExtentsOfDynstr.RegionRoDataOffset = ReadUInt32();
+	        _roDataRelativeExtentsOfDynstr.RegionSize = ReadUInt32();
 
-	        roDataRelativeExtentsOfDynsym = new NSORoDataRelativeExtent();
-	        roDataRelativeExtentsOfDynsym.RegionRoDataOffset = ReadUInt32();
-	        roDataRelativeExtentsOfDynsym.RegionSize = ReadUInt32();
+	        _roDataRelativeExtentsOfDynsym = new NSORoDataRelativeExtent();
+	        _roDataRelativeExtentsOfDynsym.RegionRoDataOffset = ReadUInt32();
+	        _roDataRelativeExtentsOfDynsym.RegionSize = ReadUInt32();
 
 			// Section Hashes
-	        textSegmentHeader.SHA256Hash = ReadBytes(32);
-	        roDataSegmentHeader.SHA256Hash = ReadBytes(32);
-	        dataSegmentHeader.SHA256Hash = ReadBytes(32);
+	        _textSegmentHeader.SHA256Hash = ReadBytes(32);
+	        _roDataSegmentHeader.SHA256Hash = ReadBytes(32);
+	        _dataSegmentHeader.SHA256Hash = ReadBytes(32);
 
 			// Decompress .text Section
-			Position = textSegmentHeader.FileOffset;
-	        if ((flags & 1) != 0)
-		        textSection = Decompress(ReadBytes((int)textSegmentHeader.CompressedSize), (int)textSegmentHeader.DecompressedSize);
+			Position = _textSegmentHeader.FileOffset;
+	        if ((_flags & 1) != 0)
+		        _textSection = Decompress(ReadBytes((int)_textSegmentHeader.CompressedSize), (int)_textSegmentHeader.DecompressedSize);
 	        else
-		        textSection = ReadBytes((int)textSegmentHeader.DecompressedSize);
+		        _textSection = ReadBytes((int)_textSegmentHeader.DecompressedSize);
 
 	        // Decompress .rodata Section
-			Position = roDataSegmentHeader.FileOffset;
-	        if ((flags & 2) != 0)
-				roDataSection = Decompress(ReadBytes((int)roDataSegmentHeader.CompressedSize), (int)roDataSegmentHeader.DecompressedSize);
+			Position = _roDataSegmentHeader.FileOffset;
+	        if ((_flags & 2) != 0)
+				_roDataSection = Decompress(ReadBytes((int)_roDataSegmentHeader.CompressedSize), (int)_roDataSegmentHeader.DecompressedSize);
 			else
-		        roDataSection = ReadBytes((int)roDataSegmentHeader.DecompressedSize);
+		        _roDataSection = ReadBytes((int)_roDataSegmentHeader.DecompressedSize);
 
 			// Decompress .data Section
-			Position = dataSegmentHeader.FileOffset;
-	        if ((flags & 4) != 0)
-		        dataSection = Decompress(ReadBytes((int) dataSegmentHeader.CompressedSize), (int)dataSegmentHeader.DecompressedSize);
+			Position = _dataSegmentHeader.FileOffset;
+	        if ((_flags & 4) != 0)
+		        _dataSection = Decompress(ReadBytes((int) _dataSegmentHeader.CompressedSize), (int)_dataSegmentHeader.DecompressedSize);
 	        else
-		        dataSection = ReadBytes((int)dataSegmentHeader.DecompressedSize);
+		        _dataSection = ReadBytes((int)_dataSegmentHeader.DecompressedSize);
 			
 			// Map Sections to Memory
 			using (var fullCodeStream = new MemoryStream())
 			using (var fullCodeWriter = new BinaryWriter(fullCodeStream))
 			{
-				fullCodeWriter.Write(textSection);
-				uint roOffset = roDataSegmentHeader.MemoryOffset;
+				fullCodeWriter.Write(_textSection);
+				uint roOffset = _roDataSegmentHeader.MemoryOffset;
 				if (roOffset >= fullCodeWriter.BaseStream.Position)
 					fullCodeWriter.Seek((int)(roOffset - fullCodeWriter.BaseStream.Position), SeekOrigin.Current);
 				else
@@ -153,19 +153,19 @@ namespace Il2CppInspector
 					fullCodeWriter.Seek((int)roOffset, SeekOrigin.Begin);
 				}
 
-				fullCodeWriter.Write(roDataSection);
-				uint dataOffset = dataSegmentHeader.MemoryOffset;
+				fullCodeWriter.Write(_roDataSection);
+				uint dataOffset = _dataSegmentHeader.MemoryOffset;
 				if (dataOffset > fullCodeWriter.BaseStream.Position)
 					fullCodeWriter.Seek((int)(dataOffset - fullCodeWriter.BaseStream.Position), SeekOrigin.Current);
 				else
 					Console.WriteLine("Truncating .rodata?");
 
-				fullCodeWriter.Write(dataSection);
+				fullCodeWriter.Write(_dataSection);
 				fullCodeWriter.Flush();
-				fullCode = fullCodeStream.ToArray();
+				_fullCode = fullCodeStream.ToArray();
 			}
 			
-	        using (var codeStream = new MemoryStream(fullCode, false))
+	        using (var codeStream = new MemoryStream(_fullCode, false))
 			using (var codeReader = new BinaryObjectReader(codeStream))
 	        {
 		        uint modOffset = codeReader.ReadUInt32(0x4);
@@ -178,43 +178,43 @@ namespace Il2CppInspector
 					return false;
 		        }
 
-		        mod = codeReader.ReadObject<NSOMod>();
-		        mod.DynamicOffset += modOffset;
-		        mod.BssStartOffset += modOffset;
-		        mod.BssEndOffset += modOffset;
-		        mod.UnwindOffset += modOffset;
-		        mod.UnwindEndOffset += modOffset;
-		        mod.ModuleOffset += modOffset;
+		        _mod = codeReader.ReadObject<NSOMod>();
+		        _mod.DynamicOffset += modOffset;
+		        _mod.BssStartOffset += modOffset;
+		        _mod.BssEndOffset += modOffset;
+		        _mod.UnwindOffset += modOffset;
+		        _mod.UnwindEndOffset += modOffset;
+		        _mod.ModuleOffset += modOffset;
 
-		        arm32 = (codeReader.ReadUInt64(mod.DynamicOffset) > 0xFFFFFFFF || codeReader.ReadUInt64(mod.DynamicOffset + 0x10) > 0xFFFFFFFF);
+		        _arm32 = (codeReader.ReadUInt64(_mod.DynamicOffset) > 0xFFFFFFFF || codeReader.ReadUInt64(_mod.DynamicOffset + 0x10) > 0xFFFFFFFF);
 
 		        //dynamic = codeReader.ReadObject<NSODynamic>(mod.DynamicOffset);
 
-		        uint flatSize = dataSegmentHeader.MemoryOffset + dataSegmentHeader.DecompressedSize;
+		        uint flatSize = _dataSegmentHeader.MemoryOffset + _dataSegmentHeader.DecompressedSize;
 
-		        dynamics = new List<NSODynamic>();
-		        codeReader.BaseStream.Seek(mod.DynamicOffset, SeekOrigin.Begin);
-		        for (uint i = 0; i < (flatSize - mod.DynamicOffset) / 0x10; i++)
+		        _dynamics = new List<NSODynamic>();
+		        codeReader.BaseStream.Seek(_mod.DynamicOffset, SeekOrigin.Begin);
+		        for (uint i = 0; i < (flatSize - _mod.DynamicOffset) / 0x10; i++)
 		        {
 			        NSODynamic dynamic = new NSODynamic();
-					dynamic.Tag = (NSODynamicTag)(arm32 ? codeReader.ReadUInt32() : codeReader.ReadUInt64());
+					dynamic.Tag = (NSODynamicTag)(_arm32 ? codeReader.ReadUInt32() : codeReader.ReadUInt64());
 			        if (dynamic.Tag == NSODynamicTag.DT_NULL)
 				        break;
-			        dynamic.Value = arm32 ? codeReader.ReadUInt32() : codeReader.ReadUInt64();
+			        dynamic.Value = _arm32 ? codeReader.ReadUInt32() : codeReader.ReadUInt64();
 					//if ((int)dynamic.Tag > 0 && (int)dynamic.Tag < 31)
-					dynamics.Add(dynamic);
+					_dynamics.Add(dynamic);
 		        }
 	        }
 
 	        return true;
         }
 
-	    public override uint[] GetFunctionTable()
+	    public override ulong[] GetFunctionTable()
 	    {
 		    ulong globalOffsetTable = 0;
 		    ulong arrayOffset = 0;
 		    ulong arraySize = 0;
-		    foreach (NSODynamic dynamic in dynamics)
+		    foreach (NSODynamic dynamic in _dynamics)
 		    {
 			    if (dynamic.Tag == NSODynamicTag.DT_PLTGOT)
 			    {
@@ -229,26 +229,20 @@ namespace Il2CppInspector
 		    }
 		    if (globalOffsetTable == 0)
 			    throw new InvalidOperationException("Unable to get GLOBAL_OFFSET_TABLE from PT_DYNAMIC");
+			
+		    GlobalOffset = globalOffsetTable;
 
-			// TODO: Support ulong
-		    GlobalOffset = (uint)globalOffsetTable;
-
-		    using (var codeStream = new MemoryStream(fullCode, false))
+		    using (var codeStream = new MemoryStream(_fullCode, false))
 		    using (var codeReader = new BinaryObjectReader(codeStream))
 		    {
-				if (arm32)
-					return codeReader.ReadArray<uint>((uint)arrayOffset, (int)(arraySize / 4));
+			    if (_arm32)
+			    {
+				    return ArrayUtil.ConvertArray<ulong, uint>(codeReader.ReadArray<uint>((uint) arrayOffset,
+					    (int) (arraySize / 4)));
+			    }
 			    else
 			    {
-					// TODO: Support 64bit
-				    ulong[] result64 = codeReader.ReadArray<ulong>((uint) arrayOffset, (int) (arraySize / 8));
-				    uint[] result = new uint[result64.Length];
-				    for (int i = 0; i < result64.Length; i++)
-				    {
-					    result[i] = (uint) result64[i];
-				    }
-
-				    return result;
+				    return codeReader.ReadArray<ulong>((uint) arrayOffset, (int) (arraySize / 8));
 			    }
 		    }
 	    }

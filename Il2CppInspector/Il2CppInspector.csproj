@@ -72,6 +72,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArrayUtil.cs" />
     <Compile Include="FileFormatReader.cs" />
     <Compile Include="FileFormatReaders\ElfReader.cs" />
     <Compile Include="FileFormatReaders\FormatLayouts\Elf.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="FileFormatReaders\PEReader.cs" />
     <Compile Include="FileFormatReaders\UBReader.cs" />
     <Compile Include="Il2CppBinary.cs" />
+    <Compile Include="Il2CppBinaryARM64.cs" />
     <Compile Include="Il2CppBinaryARM.cs" />
     <Compile Include="Il2CppBinaryClasses.cs" />
     <Compile Include="Il2CppBinaryX86.cs" />

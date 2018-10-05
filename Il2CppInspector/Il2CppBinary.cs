@@ -36,7 +36,7 @@ namespace Il2CppInspector
         }
 
         // Architecture-specific search function
-        protected abstract (uint, uint) ConsiderCode(uint loc, uint globalOffset);
+        protected abstract (ulong, ulong) ConsiderCode(ulong loc, ulong globalOffset);
 
         // Check all search locations
         public bool Initialize(int version, uint imageIndex = 0) {
@@ -55,7 +55,7 @@ namespace Il2CppInspector
             return false;
         }
 
-        private void Configure(IFileFormatReader image, uint codeRegistration, uint metadataRegistration) {
+        private void Configure(IFileFormatReader image, ulong codeRegistration, ulong metadataRegistration) {
             CodeRegistration = image.ReadMappedObject<Il2CppCodeRegistration>(codeRegistration);
             MetadataRegistration = image.ReadMappedObject<Il2CppMetadataRegistration>(metadataRegistration);
             MethodPointers = image.ReadMappedArray<uint>(CodeRegistration.pmethodPointers, (int) CodeRegistration.methodPointersCount);

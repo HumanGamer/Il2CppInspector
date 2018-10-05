@@ -113,7 +113,7 @@ namespace Il2CppInspector
             return true;
         }
 
-        public override uint[] GetFunctionTable() {
+        public override ulong[] GetFunctionTable() {
             Position = pFuncTable;
             var functionPointers = new List<uint>();
 
@@ -136,14 +136,14 @@ namespace Il2CppInspector
                     functionPointers.Add(previous);
                 }
             }
-            return functionPointers.ToArray();
+            return ArrayUtil.ConvertArray<ulong, uint>(functionPointers.ToArray());
         }
 
         public override void FinalizeInit(Il2CppBinary il2cpp) {
             il2cpp.MethodPointers = il2cpp.MethodPointers.Select(x => x - 1).ToArray();
         }
 
-        public override uint MapVATR(uint uiAddr) {
+        public override ulong MapVATR(ulong uiAddr) {
             if (!is64) {
                 var section = sections.First(x => uiAddr >= x.Address && uiAddr <= (x.Address + x.Size));
                 return uiAddr - (section.Address - section.ImageOffset);
