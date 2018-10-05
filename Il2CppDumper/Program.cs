@@ -32,22 +32,29 @@ namespace Il2CppInspector
             // Check files
             if (!File.Exists(imageFile)) {
                 Console.Error.WriteLine($"File {imageFile} does not exist");
+	            Console.ReadKey();
                 Environment.Exit(1);
             }
             if (!File.Exists(metaFile)) {
                 Console.Error.WriteLine($"File {metaFile} does not exist");
-                Environment.Exit(1);
+	            Console.ReadKey();
+				Environment.Exit(1);
             }
 
             // Analyze data
             var il2cppInspectors = Il2CppInspector.LoadFromFile(imageFile, metaFile);
-            if (il2cppInspectors == null)
-                Environment.Exit(1);
+	        if (il2cppInspectors == null)
+	        {
+		        Console.ReadKey();
+				Environment.Exit(1);
+	        }
 
-            // Write output file
+	        // Write output file
             int i = 0;
             foreach (var il2cpp in il2cppInspectors)
                 new Il2CppDumper(il2cpp).WriteFile(outFile + (i++ > 0 ? "-" + (i-1) : ""));
-        }
+
+	        Console.ReadKey();
+		}
     }
 }
